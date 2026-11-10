@@ -1,13 +1,11 @@
 # question-api-component-test
 
 API-level component tests for the AAA NAAP Acquire **question API**, written in
-Playwright + TypeScript. No browser, no UI automation, no JMeter. Tests drive an
-insurance application through the same `/api/questions` conversation the NAAP
-frontend uses, and assert on what the server returns.
+Playwright + TypeScript. Tests drive
+acquire application through the same `/api/questions` conversation with event types, and assert on what the server returns.
 
 - [What this framework is](#what-this-framework-is)
 - [What it can do today](#what-it-can-do-today)
-- [What it cannot do yet](#what-it-cannot-do-yet)
 - [Setup and running](#setup-and-running)
 - [Repository layout](#repository-layout)
 - [Authoring a test](#authoring-a-test)
@@ -67,36 +65,8 @@ Verified green against NAAP staging (Acquire v2.5.20), 12 tests in about 30 s:
   Proven on the Florida financial-professional chain: a child becomes required when
   its parent condition is met, is marked `absent` and pruned from the ADM when it
   is not, and the prune is persisted.
-- **ADM oracles**: every answer sent is echoed back unchanged (allowing for
-  legitimate reflexive pruning), and the persisted ADM read via a fresh GET matches
-  the session.
 - **Catalog guardrails**: unknown sureify_ids, unknown option labels and questions
   not on the current page fail fast with a message naming the fix.
-
-## What it cannot do yet
-
-Be explicit with stakeholders about these gaps.
-
-- **List questions (beneficiaries).** `ListBuilder` sends legacy add/save flags
-  this engine ignores and never builds the `ListSid: [rows]` array the server
-  expects. The beneficiary section, which holds 30 list children and the only
-  depth-3 reflexive chain, is untestable until this is rewritten.
-- **Local evaluation of reflexive conditions.** The catalog stores conditions as
-  opaque ids. The engine cannot tell you which answers reveal a child, cannot
-  refuse an answer to an unmet child, and `completePageWithDefaults` over-fills.
-  Reflexive paths are hand-derived from a live probe.
-- **`page_state_change` and trigger_api questions.** The request body is assumed,
-  and the call persists state on the server rather than being a dry run. Any
-  question that fires an API-event mapping is unverified.
-- **Roles other than Insured.** Beneficiary and agent medical pages belong to
-  other roles. There is no role switch or multi-product support.
-- **Cleanup.** Each test creates a new application on staging and leaves it there.
-- **The `harness` project** in `playwright.config.ts` points at a local virtual
-  backend on port 8080 that does not exist yet. Only `npm run test:dev` works.
-- **No unit tests for the engine.** Staging is the only safety net.
-- **Engine version coupling.** Pruning of unmet children is behaviour of the
-  engine version NAAP pins. A newer base engine does not prune, so the reflexive
-  oracles will need rework on an upgrade.
 
 `CLAUDE.md` keeps the running list of what has been verified against live traffic
 and what is still assumed.
