@@ -1,0 +1,20 @@
+{
+  "name": "question-api-component-test",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AAA NAAP — API-level component tests for the Acquire question API (Playwright + TypeScript)",
+  "scripts": {
+    "test": "playwright test",
+    "test:dev": "playwright test --project=naap-dev",
+    "test:harness": "playwright test --project=harness",
+    "report": "playwright show-report",
+    "catalog": "node scripts/build-catalog.mjs",
+    "catalog:naap": "node scripts/build-catalog.mjs catalog/exports/Standard_Quote_DND.json catalog/exports/Standard_Application_DND.json"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "@types/node": "^26.6.4",
+    "dotenv": "^16.4.0",
+    "typescript": "^5.9.3"
+  }
+}

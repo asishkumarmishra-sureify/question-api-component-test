@@ -1,0 +1,23 @@
+{
+  "_comment": "Insured-role journey after Policy Information (product/quote/policy answers come from naap-happy-path.json). Verified on NAAP stg 2026-10-13: About.Networth is capped at 100000 (250000 -> \"Value can't be more than 100000.\"); About.Driverlic = No and the declined lapse notice keep every other reflexive on Remaining Details unmet; Physician.Details = No and Tobacco.TobUasge = No leave nothing else to answer. The Insured's stages end at the signature page; beneficiary and agent medical pages belong to other roles. No UUIDs.",
+  "remainingDetails": {
+    "About.Country": "United States of America",
+    "About.Stateofbirth": "California",
+    "About.Citizen": "United States of America",
+    "About.Annualincome": "85000",
+    "About.Networth": "95000",
+    "About.Irs": "No",
+    "About.Usmilitary": "No",
+    "About.Driverlic": "No",
+    "Notice.Lapsenote": "I elect not to designate someone else to receive these notices"
+  },
+  "primaryPhysician": {
+    "Physician.Details": "No"
+  },
+  "tobaccoUse": {
+    "Tobacco.TobUasge": "No"
+  },
+  "netWorthAboveCap": {
+    "About.Networth": "250000"
+  }
+}

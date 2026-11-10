@@ -1,0 +1,24 @@
+{
+  "_comment": "Answers by sureify_id, labels for options. All ids exist in catalog/naap.questions.json (Standard_Quote_DND + Standard_Application_DND). No UUIDs. Dates: MM/DD/YYYY (verified). SSN: NNN-NN-NNNN (verified: digits-only -> \"Incorrect format or length.\"). Basic.Finpro omitted: its condition is unmet on this path (status absent).",
+  "product": "Standard_Quote_DND",
+  "quoteContact": {
+    "Full.Name": "Avery Quinn",
+    "Insured.ContactPhoneType": "9165550100",
+    "Insured.EmailId": "avery.quinn@example.com"
+  },
+  "policyInformation": {
+    "Basic.First": "Avery",
+    "Basic.Last": "Quinn",
+    "Basic.Permanent": "12 Test Lane",
+    "Basic.City": "Sacramento",
+    "Basic.State": "California",
+    "Basic.Zip": "95814",
+    "Basic.Dob": "04/12/1985",
+    "Basic.CountryofResidence": "United States of America",
+    "Basic.SUS": "California",
+    "Basic.Ssn": "123-45-6789",
+    "Basic.Gender": "Female",
+    "Basic.Email": "avery.quinn@example.com",
+    "Basic.Phn": "9165550100"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "_comment": "Reflexive chain on the Policy Information page (Standard_Application_DND). Verified from the live tree + variant tags (2026-10-12): Basic.Finpro appears when Basic.State = Florida; Basic.Finproname / Basic.Finemail / Basic.Finphn appear when Basic.Finpro = Yes. All three children are required. Merge these blocks over naap-happy-path.json policyInformation. No UUIDs.",
+  "floridaResident": {
+    "Basic.State": "Florida",
+    "Basic.SUS": "Florida"
+  },
+  "financialProfessional": {
+    "Basic.Finpro": "Yes",
+    "Basic.Finproname": "Jordan Lee",
+    "Basic.Finemail": "jordan.lee@example.com",
+    "Basic.Finphn": "9165550177"
+  },
+  "noFinancialProfessional": {
+    "Basic.Finpro": "No"
+  },
+  "financialProfessionalDetails": ["Basic.Finproname", "Basic.Finemail", "Basic.Finphn"]
+}
