@@ -1,8 +1,8 @@
 /**
- * NAAP — pilot journey specs.
+ * NAAP — core journey specs: product selection, quote page, Policy Information.
  * Authoring rules: sureify_ids + labels only. No UUIDs. No request bodies.
  *
- * Verified on NAAP stg (2026-10-09):
+ * Path exercised:
  *   load_application -> status 'products' (one product_card)
  *   selectProduct()  -> status 'quote'    (Standard_Quote_DND page 1: contact details)
  *   continue()       -> status 'questions' (Standard_Application_DND, breadcrumb "Policy Information")

@@ -3,8 +3,8 @@
  * Chain under test (depth 2, fan-out 3), all served on one page:
  *   Basic.State = Florida  -> Basic.Finpro becomes applicable (required)
  *   Basic.Finpro = Yes     -> Basic.Finproname, Basic.Finemail, Basic.Finphn become applicable (required)
- * Engine behaviour verified on NAAP stg: unmet children are marked `absent` and
- * their ADM entries are pruned; met-but-empty required children are `invalid`.
+ * Engine behaviour asserted: unmet children are marked `absent` and their ADM
+ * entries are pruned; met-but-empty required children are `invalid`.
  * Authoring rules: sureify_ids + labels only. No UUIDs. No engine changes.
  */
 import { test, expect } from '../fixtures/acquire';

@@ -1,7 +1,7 @@
 /**
  * NAAP — complete Insured transaction, products through the e-signature stage.
  *
- * Verified on NAAP stg (2026-10-13), role Insured:
+ * Path exercised, role Insured:
  *   products -> quote -> Policy Information -> Remainaing Details -> Primary Physician
  *   -> Tobacco Use -> signature page (status 'signature', two consent labels, nothing to answer)
  *   -> next_page returns the e-signature response: status 'e-signature', no questionnaire,

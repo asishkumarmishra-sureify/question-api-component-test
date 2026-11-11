@@ -2,8 +2,8 @@
 export interface Envelope {
   code: number;
   status: boolean | string;
-  /** Payload: base64-encoded JSON string on some deployments, a plain JSON
-   *  object on others (verified plain on NAAP stg, Acquire v2.5.20). */
+  /** Payload. The decoder accepts either a plain JSON object or a
+   *  base64-encoded JSON string, so both deployment styles work. */
   response: string | Record<string, unknown>;
   errors?: unknown;
 }
@@ -13,7 +13,7 @@ export type Adm = Record<string, unknown>;
 export interface RawOption { id: string; label: string; [k: string]: unknown }
 
 export interface RawQuestion {
-  /** Verified on NAAP stg: NOT always a UUID (e.g. 'QuoteExperiencesQuestion'). */
+  /** Treated as an opaque string: it is not always a UUID (e.g. 'QuoteExperiencesQuestion'). */
   question_id: string;
   sureify_id?: string;
   question_text?: string;
@@ -24,9 +24,9 @@ export interface RawQuestion {
   question_status_message?: string;
   response?: unknown;
   response_options?: RawOption[];
-  /** Verified on NAAP stg: nested structure (breadcrumb → group → leaf) uses
-   *  `questions`; reflexive children use `child_questions`. Either may be the
-   *  literal `false` instead of an array. */
+  /** The tree parser walks both: structural nesting (breadcrumb → group → leaf)
+   *  via `questions`, reflexive children via `child_questions`. Either may be
+   *  the literal `false` instead of an array, which the parser treats as empty. */
   questions?: RawQuestion[] | false;
   child_questions?: RawQuestion[] | false;
   sequence_number?: number;
@@ -34,7 +34,7 @@ export interface RawQuestion {
   properties?: Record<string, unknown>;
 }
 
-/** Verified on NAAP stg: breadcrumbs are a top-level array, not question nodes. */
+/** Breadcrumbs are read from the response's top-level array, not from question nodes. */
 export interface RawBreadcrumb {
   breadcrumb_id: string;
   section_id?: string;
@@ -47,8 +47,8 @@ export interface RawBreadcrumb {
   section_progress?: unknown;
 }
 
-/** Decoded payload of a /questions call. Field locations verified against
- *  live NAAP stg traffic (load_application, 2026-10-09). */
+/** Decoded payload of a /questions call. These are the field locations the
+ *  engine reads during ingest; optional fallbacks cover older layouts. */
 export interface QuestionsResponse {
   other_params?: {
     uid?: string;
@@ -68,7 +68,7 @@ export interface QuestionsResponse {
     };
   };
   breadcrumbs?: RawBreadcrumb[];
-  /** Verified: an EMPTY ADM is serialized as `[]` (PHP empty array). */
+  /** An EMPTY ADM arrives as `[]` (PHP empty array); ingest normalizes it to `{}`. */
   application_data_model?: Adm | unknown[];
   answered_groups?: string[];
   /** Legacy location of uid (older deployments). */

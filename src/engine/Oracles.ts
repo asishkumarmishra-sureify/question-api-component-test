@@ -100,8 +100,8 @@ export class PageAssertions {
   /**
    * Every answer we sent must come back in the ADM echo — EXCEPT answers the
    * engine legitimately prunes because the question's reflexive condition is
-   * unmet (verified NAAP stg: such questions carry status 'absent' and their
-   * ADM entry is removed). A pruned answer is reported only when the question
+   * unmet (such questions carry status 'absent' and their ADM entry is
+   * removed). A pruned answer is reported only when the question
    * is neither marked absent nor known to the catalog as reflexive.
    */
   async expectEchoConsistent() {
@@ -141,10 +141,10 @@ function isOptionValue(v: unknown): v is { id: string; label?: string } {
   return !!v && typeof v === 'object' && typeof (v as any).id === 'string';
 }
 
-/** Equality with per-type normalization — tune against real NAAP responses as pages are verified. */
+/** Equality with per-type normalization — extend the switch as new display types are covered. */
 function admReflects(echoed: unknown, sent: unknown, q?: TreeQuestion): boolean {
   if (echoed === sent) return true;
-  // Option answers travel as { id, label[, api_value] } objects (verified NAAP stg).
+  // Option answers travel as { id, label[, api_value] } objects; compare by id.
   if (isOptionValue(sent)) return isOptionValue(echoed) && echoed.id === sent.id;
   switch (q?.raw.display_type) {
     case 'datepicker': return String(echoed).replaceAll('/', '-') === String(sent).replaceAll('/', '-');

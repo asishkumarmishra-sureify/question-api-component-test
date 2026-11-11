@@ -2,8 +2,8 @@ import type { Envelope, QuestionsResponse } from '../types';
 
 /**
  * All ApplynBuyAPI responses arrive as { code, status, response: <payload> }.
- * Verified on NAAP stg (Acquire v2.5.20): `response` is a plain JSON object.
- * Older deployments base64-encode it. Accept both here and nowhere else.
+ * `response` is either a plain JSON object or a base64-encoded JSON string,
+ * depending on the deployment. Accept both here and nowhere else.
  */
 export function decodeEnvelope<T = QuestionsResponse>(env: Envelope): T {
   const payload = env?.response as unknown;

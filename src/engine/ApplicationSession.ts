@@ -42,7 +42,7 @@ export class ApplicationSession {
   async start(opts: { product?: string; locale?: string } & Record<string, unknown> = {}) {
     await this.step('Start application (load_application)', async () => {
       const resp = await this.client.questions({ event_type: 'load_application', ...opts });
-      // Verified on NAAP stg: uid lives in other_params (older deployments: top level).
+      // uid is read from other_params, with a top-level fallback for older layouts.
       const uid = resp.other_params?.uid ?? resp.uid;
       if (!uid) throw new Error('load_application returned no uid — check endpoint style/auth');
       this.uid = uid;
@@ -56,11 +56,11 @@ export class ApplicationSession {
   ingest(resp: QuestionsResponse) {
     this.tree = QuestionTree.parse(resp.data?.questionnaire?.questions, resp.breadcrumbs ?? []);
     if (resp.application_data_model !== undefined) {
-      // server echo wins. Verified: an empty ADM is serialized as [] — normalize to {}.
+      // server echo wins. An empty ADM arrives as [] — normalize to {}.
       const echo = resp.application_data_model;
       this.adm = Array.isArray(echo) ? {} : { ...echo };
     }
-    // Verified on NAAP stg: page_sequence_number sits under data.questionnaire.
+    // page_sequence_number is read from data.questionnaire, with other_params as fallback.
     this.pageSeq = resp.data?.questionnaire?.page_sequence_number
       ?? resp.other_params?.page_sequence_number
       ?? this.pageSeq;
@@ -102,8 +102,8 @@ export class ApplicationSession {
   }
 
   /**
-   * Product selection. Verified on NAAP stg: a fresh application opens with
-   * status 'products' on a page whose only question is a `product_card`; its
+   * Product selection. A fresh application opens with status 'products' on a
+   * page whose only question is a `product_card`; its
    * options are the available products (label = product name). Submitting it
    * via next_page moves the application to status 'quote' and serves page 1
    * of that product's QUOTE questionnaire. This page belongs to no authored

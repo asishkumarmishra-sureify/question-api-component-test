@@ -7,9 +7,10 @@ export class TreeQuestion {
   get displayType() { return this.raw.display_type ?? ''; }
   get isHidden() { return this.raw.is_hidden === true; }
   get status() { return this.raw.question_status ?? ''; }
-  /** Verified on NAAP stg: failed validation = 'invalid' (msg e.g. "Field is required",
-   *  "Incorrect format or length."); unanswered required = 'missing'; accepted = 'valid';
-   *  not applicable (reflexive condition unmet) = 'absent'. 'error' kept for other deployments. */
+  /** Status vocabulary the oracles rely on: failed validation = 'invalid' (msg e.g.
+   *  "Field is required", "Incorrect format or length."); unanswered required = 'missing';
+   *  accepted = 'valid'; not applicable (reflexive condition unmet) = 'absent'.
+   *  'error' is also treated as a failure for deployments that use it. */
   get hasError() { return this.status === 'invalid' || this.status === 'error'; }
   get isAbsent() { return this.status === 'absent'; }
   get statusMessage() { return this.raw.question_status_message ?? ''; }
@@ -28,9 +29,9 @@ export class TreeQuestion {
   }
 
   /**
-   * ADM value for an option answer. Verified on NAAP stg (v2.5.20): the
-   * engine stores option answers as objects `{ id, label[, api_value] }`,
-   * never as a bare id — a bare id on next_page yields HTTP 500.
+   * ADM value for an option answer. We always send option answers as objects
+   * `{ id, label[, api_value] }`, never as a bare id: the engine rejects a
+   * bare id on next_page with HTTP 500.
    */
   admValueForOption(label: string): Record<string, unknown> {
     const o = this.resolveOptionByLabel(label);
@@ -42,8 +43,8 @@ export class TreeQuestion {
  * Indexed, flattened view of one response's questionnaire tree.
  * Rebuilt from scratch on every ingest — never mutated, never cached across calls.
  *
- * Nesting (verified on NAAP stg): breadcrumb → questions_group → leaf via
- * `questions`; reflexive children via `child_questions`. Both may be `false`.
+ * Nesting handled: breadcrumb → questions_group → leaf via `questions`;
+ * reflexive children via `child_questions`. Both may be `false`.
  */
 export class QuestionTree {
   private bySid = new Map<string, TreeQuestion>();
@@ -77,11 +78,11 @@ export class QuestionTree {
 
   /**
    * Active breadcrumb = the entry in the response's top-level `breadcrumbs`
-   * array whose state is 'active' (verified on NAAP stg). Falls back to a
+   * array whose state is 'active'. Falls back to a
    * breadcrumb-typed question node carrying an active marker, for deployments
    * that mark it inline. Returns undefined when nothing is marked.
    */
-  /** Title of the active breadcrumb as the server labels it (verified: top-level breadcrumbs[].title). */
+  /** Title of the active breadcrumb as the server labels it (top-level breadcrumbs[].title). */
   activeBreadcrumbTitle(): string | undefined {
     return this.breadcrumbs.find(b => b.state === 'active')?.title;
   }

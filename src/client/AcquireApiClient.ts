@@ -7,7 +7,7 @@ export interface ClientConfig {
   /** 'legacy' = POST /api/questions (uid in query/body) · 'v4' = /api/v4/acquire/* */
   apiStyle: 'legacy' | 'v4';
   auth?: CognitoAuth;
-  /** Sent as ?language=… on every call (verified: NAAP stg uses en-US). */
+  /** Sent as ?language=… on every call. Defaults to en-US. */
   language?: string;
   /** Observer for every exchange (decoded payloads). The fixture uses it to
    *  attach request/response to the Playwright report. */
@@ -76,7 +76,7 @@ export class AcquireApiClient {
   }
 
   /**
-   * Read the persisted ADM. Verified on NAAP stg: the backend route is
+   * Read the persisted ADM. The backend route is
    * GET api/v4/acquire/application-data-model?uid=…; the Express layer in
    * front of the legacy `/api/*` prefix only proxies POSTs (a GET there
    * returns the SPA's index.html), so reads ALWAYS go to the v4 path.
@@ -95,8 +95,8 @@ export class AcquireApiClient {
     return (decoded.application_data_model ?? decoded) as Adm;
   }
 
-  /** Verified on NAAP stg: POST /api/application-data-model?uid=… with
-   *  { application_data_model } (400 "please provide data modal" without it). */
+  /** Write the persisted ADM: POST /api/application-data-model?uid=… with
+   *  { application_data_model } (the server answers 400 "please provide data modal" without it). */
   async postApplicationDataModel(uid: string, adm: Adm): Promise<void> {
     const url = this.path('application-data-model', { uid });
     const body = { uid, application_data_model: adm };

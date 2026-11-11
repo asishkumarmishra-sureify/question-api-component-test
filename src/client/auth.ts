@@ -14,7 +14,7 @@ export class CognitoAuth {
     const resp = await request.post(this.cfg.tokenUrl, {
       // Explicit: the Playwright project sets a JSON content-type via
       // extraHTTPHeaders, which would otherwise override the form encoding
-      // Cognito requires (verified: it answers with an HTML error page).
+      // Cognito requires (it answers a JSON-typed body with an HTML error page).
       headers: { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json' },
       form: {
         grant_type: 'client_credentials',
