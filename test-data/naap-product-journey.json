@@ -1,0 +1,156 @@
+{
+  "_comment": "NAAP product journey (NAAP Product Quote + NAAP Product Application), role Agent, started from the agent panel. Answers by sureify_id, option labels for choices, a list of labels for multi-selects, a list of rows for list questions (beneficiaries). No UUIDs. Formats the server enforces: dates MM/DD/YYYY, SSN NNN-NN-NNNN, phone (NNN) NNN-NNNN. Profile: California resident, not a AAA member, employed, insured is also owner and payor, one primary and one contingent beneficiary at 100% each, no existing insurance, clean health answers, no secondary addressee, direct bill. `pages` is keyed by breadcrumb title in journey order. Owner name and address repeat the insured values because the server requires them even when the insured is the owner (the eApp copies them in the browser). HIV Testing Consent is continued with no answers: its fields are optional for California.",
+  "agent": {
+    "agentName": "Test Agent",
+    "agentEmail": "test.agent@example.com",
+    "addressLine1": "1100 Lincoln Ave",
+    "addressLine2": "Suite 251",
+    "state": "CA",
+    "city": "San Jose",
+    "zipcode": "95125",
+    "agentNumber": "sify2000",
+    "mobileNumber": "+19165550111",
+    "clubCode": "000"
+  },
+  "quote": {
+    "Insured.FirstName": "Avery",
+    "Insured.LastName": "Quinn",
+    "Insured.DateOfBirth": "04/12/1985",
+    "Insured.Gender": "Female",
+    "Insured.ResidenceState": "California",
+    "Quote.Membership": "Not a AAA Member",
+    "Quote.Backdate": "No",
+    "Quote.TermPeriod": "10-Year",
+    "Quote.UnderwritingClass": "Super Preferred Non-Nicotine",
+    "Quote.SolveFor": "Premium",
+    "Quote.FaceAmount": "250000",
+    "Quote.PaymentMode": "Annual"
+  },
+  "pages": {
+    "Proposed Insured Information": {
+      "Insured.AddressLine1": "12 Test Lane",
+      "Insured.City": "Sacramento",
+      "Insured.State": "California",
+      "Insured.ZipCode": "95814",
+      "Insured.StateOrCountryOfBirth": "California",
+      "Insured.PhoneType": [
+        "Cell"
+      ],
+      "Insured.CellPhone": "(916) 555-0100",
+      "Insured.EmailId": "avery.quinn@example.com",
+      "Insured.IsUSCitizen": "Yes",
+      "Insured.SSN": "123-45-6789",
+      "Insured.IdentityDocumentNumber": "Driver's License",
+      "Insured.StateIssued": "California",
+      "Insured.AlternateIdNumber": "D1234567",
+      "Insured.DeclinedForInsurance": "No",
+      "Insured.IsEmployed": "Yes",
+      "Insured.Occupation": "Accountant",
+      "Insured.AnnualIncome": "85000",
+      "Insured.NetWorth": "95000",
+      "Insured.TravelOutsideUS": "No"
+    },
+    "Proposed Owner Information": {
+      "Insured.IsPolicyOwner": "Yes",
+      "Owner.IsAAAMember": "No",
+      "Owner.FirstName": "Avery",
+      "Owner.LastName": "Quinn",
+      "Owner.AddressLine1": "12 Test Lane",
+      "Owner.City": "Sacramento",
+      "Owner.State": "California",
+      "Owner.ZipCode": "95814"
+    },
+    "Beneficiary Information": {
+      "BenePrimary.DesignationsGroup": [
+        {
+          "BenePrimary.RelationshipToProposedInsured": "Brother",
+          "BenePrimary.FirstName": "Jordan",
+          "BenePrimary.LastName": "Quinn",
+          "BenePrimary.DateOfBirth": "06/15/1988",
+          "BenePrimary.AllocationSlider": "100"
+        }
+      ],
+      "BeneContingent.DesignationsGroup": [
+        {
+          "BeneContingent.RelationshipToProposedInsured": "Sister",
+          "BeneContingent.FirstName": "Riley",
+          "BeneContingent.LastName": "Quinn",
+          "BeneContingent.DateOfBirth": "09/20/1990",
+          "BeneContingent.AllocationSlider": "100"
+        }
+      ]
+    },
+    "Existing Insurance": {
+      "ExtInsurance.PendingInsurance": "No",
+      "ExtInsurance.ReplaceInsurance": "No",
+      "ExtInsurance.IsFinanced": "No",
+      "ExtInsurance.IsSold": "No",
+      "RelatedApplication.KeptTogether": "No",
+      "ExtInsurance.ReadAloud": "No"
+    },
+    "Proposed Insured Health Information": {
+      "Insured.NicotineUsage": "Never",
+      "Insured.HeightFeet": "5",
+      "Insured.HeightInches": "6",
+      "Insured.Weight": "140",
+      "Insured.HasPersonalPhysician": "No",
+      "Insured.HasPrescriptions": "No",
+      "Insured.HospitalOrADL": "No",
+      "Insured.PendingFollowUp": "No",
+      "Insured.HeartOrCancer": "No",
+      "Insured.AIDSOrALS": "No",
+      "Insured.HIV": "No",
+      "Insured.DrugAlcoholAdvised": "No",
+      "Insured.NonPrescribedDrugs": "No",
+      "Insured.Incarceration": "No"
+    },
+    "HIV Testing Consent": {},
+    "Temporary Insurance Agreement": {
+      "TIA.Exceed1MillionNonNY": "No"
+    },
+    "Secondary Addressee Information": {
+      "SecondaryAddressee": "No"
+    },
+    "Premium Payment": {
+      "Payment.PayorofPolicyPIEqualPO": "Proposed Insured / Owner",
+      "Payment.Method": "Direct Bill"
+    },
+    "Agent Supplemental Information": {
+      "Insured.ConsentNonNY": "Yes",
+      "Agent.ElectronicPolicyConsent": "Yes",
+      "Agent.DisclosureToAgent": "Yes",
+      "Agent.HIPAAAuthAffix": "Yes",
+      "Agent.InPersonRepresentation": "I have",
+      "HIPAA.AuthorizationPerson": "Applicant",
+      "Agent.InsuredInsuranceInForce": "Does not",
+      "Agent.InsuredIntentToReplace": "Does not",
+      "Agent.InsuredUnderstandsEnglish": "Yes",
+      "Agent.TIATermsRead": "Yes",
+      "Agent.AdditionalAgentsFlag": "No",
+      "Agent.LeadSourceCode": "Anonymous",
+      "Agent.PremierAdvantage": "No Preference"
+    }
+  },
+  "handoffRole": "Insured",
+  "insured": {
+    "_comment": "The Insured's own session after the Agent's hand-off. identityCheck must match the insured's date of birth and zip code given on the Agent's pages.",
+    "identityCheck": {
+      "Insured.DateOfBirth": "04/12/1985",
+      "Challenge.ZipCodeLast5Challenge": "95814"
+    },
+    "wrongIdentityCheck": {
+      "Insured.DateOfBirth": "04/12/1985",
+      "Challenge.ZipCodeLast5Challenge": "00000"
+    },
+    "termsOfUse": {
+      "TermsAndConditionsConsent2": [
+        "I have read and agree to the Terms of Use"
+      ]
+    },
+    "signaturePage": {
+      "InsuredSignatureSigningCity": "Sacramento",
+      "InsuredSignatureSigningState": "California"
+    },
+    "handoffRole": "Agent"
+  }
+}
