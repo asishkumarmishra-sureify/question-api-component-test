@@ -141,14 +141,59 @@ function isOptionValue(v: unknown): v is { id: string; label?: string } {
   return !!v && typeof v === 'object' && typeof (v as any).id === 'string';
 }
 
+/** "660,900.00" / "$250,000" / 250000 -> 250000; NaN when not numeric. */
+function asNumber(v: unknown): number {
+  return typeof v === 'number' ? v : Number(String(v ?? '').replace(/[$,\s]/g, '') || NaN);
+}
+
 /** Equality with per-type normalization — extend the switch as new display types are covered. */
 function admReflects(echoed: unknown, sent: unknown, q?: TreeQuestion): boolean {
   if (echoed === sent) return true;
   // Option answers travel as { id, label[, api_value] } objects; compare by id.
   if (isOptionValue(sent)) return isOptionValue(echoed) && echoed.id === sent.id;
+  // Multi-select answers are lists of option objects; compare the id sets.
+  if (Array.isArray(sent) && sent.every(isOptionValue)) {
+    if (!Array.isArray(echoed) || !echoed.every(isOptionValue)) return false;
+    const ids = (xs: { id: string }[]) => xs.map(x => x.id).sort().join(',');
+    return ids(echoed) === ids(sent);
+  }
   switch (q?.raw.display_type) {
     case 'datepicker': return String(echoed).replaceAll('/', '-') === String(sent).replaceAll('/', '-');
-    case 'currency': return Number(echoed) === Number(sent);
-    default: return JSON.stringify(echoed) === JSON.stringify(sent);
+    case 'currency':
+    case 'number': return asNumber(echoed) === asNumber(sent);
   }
+  // A button's answer is the `{ code, status, response }` envelope of its API
+  // call. The server stores it with every scalar stringified (200 -> "200"),
+  // and the button is usually off the page by the time the echo arrives, so
+  // this is recognised by shape and compared by presence of a result.
+  if (isApiResult(sent)) return isApiResult(echoed);
+  // Values copied out of an API result (e.g. Quote.Response.Age) are sent with
+  // their JSON type and echoed as strings: 41 comes back as "41".
+  return deepReflects(echoed, sent);
+}
+
+/**
+ * Structural comparison for composite answers (list rows): key order is
+ * ignored, option objects are compared by id, scalars as strings. Every key
+ * that was sent must come back; extra keys in the echo are allowed.
+ */
+function deepReflects(echoed: unknown, sent: unknown): boolean {
+  if (isScalar(sent)) return isScalar(echoed) && String(echoed) === String(sent);
+  if (isOptionValue(sent)) return isOptionValue(echoed) && echoed.id === sent.id;
+  if (Array.isArray(sent)) {
+    return Array.isArray(echoed) && echoed.length === sent.length && sent.every((v, i) => deepReflects(echoed[i], v));
+  }
+  if (sent && typeof sent === 'object') {
+    if (!echoed || typeof echoed !== 'object') return false;
+    return Object.entries(sent).every(([k, v]) => deepReflects((echoed as Record<string, unknown>)[k], v));
+  }
+  return echoed === sent || (echoed == null && sent == null);
+}
+
+function isApiResult(v: unknown): boolean {
+  return !!v && typeof v === 'object' && !Array.isArray(v) && 'code' in v && 'response' in v;
+}
+
+function isScalar(v: unknown): v is string | number | boolean {
+  return typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean';
 }

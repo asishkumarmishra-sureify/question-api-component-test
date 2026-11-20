@@ -9,7 +9,7 @@
     "test:harness": "playwright test --project=harness",
     "report": "playwright show-report",
     "catalog": "node scripts/build-catalog.mjs",
-    "catalog:naap": "node scripts/build-catalog.mjs catalog/exports/Standard_Quote_DND.json catalog/exports/Standard_Application_DND.json"
+    "catalog:naap": "node scripts/build-catalog.mjs catalog/exports/Standard_Quote_DND.json catalog/exports/Standard_Application_DND.json catalog/exports/NAAP_Product_Quote_version_09.json catalog/exports/NAAP_Product_Application_version_47.json"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",

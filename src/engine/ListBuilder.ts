@@ -1,47 +1,27 @@
-import type { ApplicationSession } from './ApplicationSession';
+import type { ApplicationSession, ListRow } from './ApplicationSession';
 
 /**
- * List flows = the same loop with a smaller orbit. Every event is a full
- * send -> ingest cycle because each response restructures the tree (new
- * record rows, revealed reflexive children with FRESH question UUIDs).
+ * List questions (display_type `beneficiary_list` / `list`).
  *
- * TODO(pilot): field names for list events (list_question_id,
- * list_item_add_flag, reflexive_question_flag, list_item_save_flag) match
- * the base-product frontend; verify against NAAP's gnarliest list screen
- * in week 2 and adjust HERE only.
+ * A list has no events of its own. Its answer is the whole list, stored in the
+ * ADM under the list question's sureify_id as an array of rows; each row is an
+ * object keyed by the sureify_ids of the list's row questions, e.g.
+ *   "BenePrimary.DesignationsGroup": [
+ *     { "BenePrimary.FirstName": "…", "BenePrimary.RelationshipToProposedInsured": { id, label },
+ *       "BenePrimary.AllocationSlider": "100" } ]
+ * The rows are submitted with the page's other answers on the next continue().
+ * The row questions are served once on the page as a template, so labels are
+ * resolved against the live tree like any other answer.
  */
 export class ListBuilder {
-  constructor(private s: ApplicationSession, private parentSid: string) {}
+  constructor(private s: ApplicationSession, private listSid: string) {}
 
-  private parentUuid() {
-    const q = this.s.tree.bySureifyId(this.parentSid);
-    if (!q) throw new Error(`List parent "${this.parentSid}" not in current tree`);
-    return q.questionUuid;
-  }
-
-  async addRecord(answers: Record<string, string>) {
-    // 1) open a draft row
-    let resp = await this.s.client.questions({
-      uid: this.s.uid,
-      event_type: 'page_state_change',
-      list_question_id: this.parentUuid(),
-      list_item_add_flag: 1,
-      application_data_model: this.s.adm,
-    });
-    this.s.ingest(resp);
-
-    // 2) answer the row's questions from the POST-ADD tree (incl. reflexives)
-    for (const [sid, v] of Object.entries(answers)) await this.s.answer(sid, v);
-
-    // 3) save the row
-    resp = await this.s.client.questions({
-      uid: this.s.uid,
-      event_type: 'page_state_change',
-      list_question_id: this.parentUuid(),
-      list_item_save_flag: 1,
-      application_data_model: this.s.adm,
-    });
-    this.s.ingest(resp);
+  /** Append one row; answers by sureify_id, option labels for choices. */
+  async addRecord(answers: ListRow) {
+    await this.s.step(`Add a row to ${this.listSid}`, () => this.s.appendListRow(this.listSid, answers));
     return this;
   }
+
+  /** Rows currently answered for this list. */
+  records() { return this.s.listRows(this.listSid); }
 }

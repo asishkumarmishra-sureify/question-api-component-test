@@ -1,5 +1,7 @@
 import type { RawBreadcrumb, RawOption, RawQuestion } from '../types';
 
+const FREE_ENTRY_TYPES = new Set(['text', 'textarea', 'number', 'currency', 'date', 'datepicker', 'label', 'slider', 'button']);
+
 export class TreeQuestion {
   constructor(public raw: RawQuestion, public parent?: TreeQuestion) {}
   get sureifyId() { return this.raw.sureify_id; }
@@ -13,8 +15,23 @@ export class TreeQuestion {
    *  'error' is also treated as a failure for deployments that use it. */
   get hasError() { return this.status === 'invalid' || this.status === 'error'; }
   get isAbsent() { return this.status === 'absent'; }
-  get statusMessage() { return this.raw.question_status_message ?? ''; }
-  hasOptions() { return (this.raw.response_options?.length ?? 0) > 0; }
+  /** The question's own message, or — for a row question of a list — the
+   *  per-row messages the server reports in `error_list_questions`
+   *  ({ <list sureify_id>: [{ index, question_status_message }] }), as "row 1: …". */
+  get statusMessage() {
+    if (this.raw.question_status_message) return this.raw.question_status_message;
+    return Object.values(this.raw.error_list_questions ?? {}).flat()
+      .map(e => `row ${e.index + 1}: ${e.question_status_message ?? ''}`).join('; ');
+  }
+  /** A choice question = it carries options AND is not a free-entry type.
+   *  Studio leaves stale `response_options` on some free-entry questions
+   *  (e.g. a text field that was once a Yes/No), so options alone prove nothing. */
+  hasOptions() {
+    return (this.raw.response_options?.length ?? 0) > 0 && !FREE_ENTRY_TYPES.has(this.displayType);
+  }
+  /** List questions (beneficiaries, existing policies, …): the answer is an array of rows. */
+  get isList() { return this.displayType === 'beneficiary_list' || this.displayType === 'list'; }
+  get isMultiSelect() { return this.displayType === 'checkbox' || this.raw.question_type === 'multiselection'; }
 
   /** Label -> live option, resolved from THIS response. Case-insensitive. */
   resolveOptionByLabel(label: string): RawOption {

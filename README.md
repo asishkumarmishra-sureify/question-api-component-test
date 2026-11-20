@@ -47,7 +47,25 @@ Detailed diagrams of the loop live in [docs/sequence-diagram.md](docs/sequence-d
 
 ## What it can do today
 
-Verified green against NAAP staging (Acquire v2.5.20), 12 tests in about 30 s:
+Verified green against NAAP staging (Acquire v2.5.20), 20 tests in about 3 min:
+
+- **Real NAAP product, Agent journey from the agent panel**: cutover ("Initiate >
+  Begin Quote") → quote page ("Case Setup") → Get Your Quote → all ten application
+  pages, Proposed Insured Information through Agent Supplemental Information, with a
+  primary and a contingent beneficiary, ending with the application passed to the
+  Insured (status `role_switching`).
+- **Insured stage, no mailbox needed**: the Insured's launch link is fetched from the
+  API, the identity check (date of birth and zip code) is answered, the Terms of Use
+  are accepted, the documents are generated and click-signed through the signing
+  service, and the application is passed back to the Agent for the Agent signature.
+- **List questions** such as beneficiaries: a list of rows in test data, or
+  `app.list(id).addRecord(row)`; a failing row is reported as `row N: message`.
+- **API buttons** such as Get Your Quote: the call, its parameters and where the
+  result is stored all come from the live button question.
+- **Multi-select answers**: a list of labels in test data.
+
+The remaining items run on the DND sandbox product (`Standard_Quote_DND`), which is
+what a bare `load_application` offers:
 
 - **Full Insured journey**: products → quote → Policy Information → Remaining
   Details → Primary Physician → Tobacco Use → signature page → e-signature stage.
@@ -101,7 +119,7 @@ NAAP environment. Never point it at production.
 | `src/engine/ApplicationSession.ts` | The ingest loop: `start`, `selectProduct`, `answer`, `answerPage`, `continue`, `triggerApi`, `list`. |
 | `src/engine/QuestionTree.ts` | Flattened, indexed view of one response; label-to-option resolution. |
 | `src/engine/Oracles.ts` | `PageAssertions`: every `expect*` method a spec can call. |
-| `src/engine/ListBuilder.ts` | List sub-loop. **Known broken**, see above. |
+| `src/engine/ListBuilder.ts` | List questions: rows are added to the list's answer and submitted with the page. |
 | `src/catalog/` + `catalog/naap.questions.json` | Authoring guardrails generated from Studio exports. Never hand-edit the JSON. |
 | `catalog/exports/` | Raw Acquire Studio exports, one per questionnaire. |
 | `fixtures/acquire.ts` | Playwright fixture that wires auth, client, catalog and report attachments; exposes `acquire.startApplication()`. |

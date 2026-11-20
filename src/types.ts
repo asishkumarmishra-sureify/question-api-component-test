@@ -22,6 +22,8 @@ export interface RawQuestion {
   is_hidden?: boolean;
   question_status?: string;
   question_status_message?: string;
+  /** Row questions of a list: validation failures per row, keyed by the list's sureify_id. */
+  error_list_questions?: Record<string, { index: number; question_status_message?: string }[]>;
   response?: unknown;
   response_options?: RawOption[];
   /** The tree parser walks both: structural nesting (breadcrumb → group → leaf)
@@ -47,6 +49,15 @@ export interface RawBreadcrumb {
   section_progress?: unknown;
 }
 
+/** Offered when the current role's stage is complete and the application has
+ *  to be passed to the next role (other_params.role_switch_config). */
+export interface RoleHandoff {
+  cta_button_text?: string;
+  notification_page?: { title?: string; body?: string };
+  transition_roles?: { name: string; uuid?: string; email_id?: string }[];
+  [k: string]: unknown;
+}
+
 /** Decoded payload of a /questions call. These are the field locations the
  *  engine reads during ingest; optional fallbacks cover older layouts. */
 export interface QuestionsResponse {
@@ -58,6 +69,7 @@ export interface QuestionsResponse {
     current_role?: { uuid?: string; name?: string };
     current_acquire_version?: string;
     page_sequence_number?: number;
+    role_switch_config?: RoleHandoff;
     [k: string]: unknown;
   };
   data?: {
@@ -66,7 +78,17 @@ export interface QuestionsResponse {
       questions?: RawQuestion[] | RawQuestion;
       completed?: boolean;
     };
+    /** Present on an 'e-signature' response: what the signing service needs. */
+    feature?: string;
+    payload?: string;
+    payload_hash?: string;
+    signatory_group?: string;
+    signing_id?: string;
+    applicable_forms?: unknown[];
+    [k: string]: unknown;
   };
+  /** Present on 'e-signature' and post-signing responses. */
+  signature_info?: { type?: string; envelopeSigned?: boolean; signing_id?: string; [k: string]: unknown };
   breadcrumbs?: RawBreadcrumb[];
   /** An EMPTY ADM arrives as `[]` (PHP empty array); ingest normalizes it to `{}`. */
   application_data_model?: Adm | unknown[];
@@ -82,4 +104,6 @@ export type QuestionsEvent =
   | 'page_state_change'
   | 'confirm_update'
   | 'navigate_to_breadcrumb'
+  | 'role_transition'
+  | 'challenge_submit'
   | 'signing_complete';

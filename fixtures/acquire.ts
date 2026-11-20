@@ -6,7 +6,10 @@ import { ApplicationSession } from '../src/engine/ApplicationSession';
 import { Catalog } from '../src/catalog/catalog';
 
 interface AcquireFixture {
+  /** Bare `load_application`: opens on the product picker. */
   startApplication(opts?: Record<string, unknown>): Promise<ApplicationSession>;
+  /** Agent-panel "Initiate > Begin Quote": opens on the product's quote questionnaire. */
+  startFromAgentPanel(agent: Record<string, unknown>): Promise<ApplicationSession>;
 }
 
 export const test = base.extend<{ acquire: AcquireFixture }>({
@@ -25,6 +28,7 @@ export const test = base.extend<{ acquire: AcquireFixture }>({
     const client = new AcquireApiClient(request, {
       apiStyle: (process.env.NAAP_API_STYLE as 'legacy' | 'v4') ?? 'legacy',
       language: process.env.NAAP_LANGUAGE ?? 'en-US',
+      esignClientId: process.env.NAAP_ESIGN_CLIENT_ID,
       auth,
       // One attachment per API call, visible under the test in the HTML report:
       //   "03 POST /api/questions next_page -> 200 (1.2s)" with decoded request + response.
@@ -43,6 +47,8 @@ export const test = base.extend<{ acquire: AcquireFixture }>({
     const step = <T,>(title: string, body: () => Promise<T> | T) => base.step(title, body);
     await use({
       startApplication: (opts = {}) => new ApplicationSession(client, catalog, { step }).start(opts),
+      startFromAgentPanel: agent => new ApplicationSession(client, catalog, { step })
+        .startFromAgentPanel(agent, { agentId: process.env.NAAP_AGENT_ID }),
     });
   }, { box: true }],
 });
