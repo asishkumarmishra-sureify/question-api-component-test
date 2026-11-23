@@ -131,20 +131,20 @@ export class ApplicationSession {
    *  navigation-type questions that are not part of an authored questionnaire
    *  (e.g. the product picker served by the quote shell). */
   private answerUncatalogued(sureifyId: string, value: AnswerValue) {
-    const q = this.tree.bySureifyId(sureifyId);
-    if (!q) throw new Error(
+    const question = this.tree.bySureifyId(sureifyId);
+    if (!question) throw new Error(
       `"${sureifyId}" is not in the current question tree (pageSeq ${this.pageSeq}, ` +
       `breadcrumb ${this.breadcrumbId || '?'}). Reflexive logic may not have revealed it.`);
-    const resolved = q.isList ? asRows(sureifyId, value).map(row => this.resolveRow(row)) : this.resolveValue(q, value);
+    const resolved = question.isList ? asRows(sureifyId, value).map(row => this.resolveRow(row)) : this.resolveValue(question, value);
     this.pendingAnswers[sureifyId] = resolved;
     this.adm[sureifyId] = resolved;
   }
 
   /** Choice questions: label -> live option object; multi-selects take a list of labels. */
-  private resolveValue(q: TreeQuestion, value: AnswerValue): unknown {
-    if (!q.hasOptions()) return value;
-    if (q.isMultiSelect) return (Array.isArray(value) ? value : [value]).map(l => q.admValueForOption(String(l)));
-    return q.admValueForOption(String(value));
+  private resolveValue(question: TreeQuestion, value: AnswerValue): unknown {
+    if (!question.hasOptions()) return value;
+    if (question.isMultiSelect) return (Array.isArray(value) ? value : [value]).map(l => question.admValueForOption(String(l)));
+    return question.admValueForOption(String(value));
   }
 
   /**
@@ -157,9 +157,9 @@ export class ApplicationSession {
     const out: Record<string, unknown> = {};
     for (const [sid, v] of Object.entries(row)) {
       this.catalog.assertKnown(sid);
-      const q = this.tree.bySureifyId(sid);
-      if (!q) throw new Error(`List row question "${sid}" is not in the current question tree (${this.here()}).`);
-      out[sid] = this.resolveValue(q, v);
+      const question = this.tree.bySureifyId(sid);
+      if (!question) throw new Error(`List row question "${sid}" is not in the current question tree (${this.here()}).`);
+      out[sid] = this.resolveValue(question, v);
     }
     return out;
   }
@@ -173,8 +173,8 @@ export class ApplicationSession {
   /** Append one resolved row to a list question's answer. Used by ListBuilder. */
   appendListRow(listSureifyId: string, row: ListRow) {
     this.catalog.assertKnown(listSureifyId);
-    const q = this.tree.bySureifyId(listSureifyId);
-    if (!q?.isList) throw new Error(`"${listSureifyId}" is not a list question on the current page (${this.here()}).`);
+    const question = this.tree.bySureifyId(listSureifyId);
+    if (!question?.isList) throw new Error(`"${listSureifyId}" is not a list question on the current page (${this.here()}).`);
     const rows = [...this.listRows(listSureifyId), this.resolveRow(row)];
     this.pendingAnswers[listSureifyId] = rows;
     this.adm[listSureifyId] = rows;
@@ -219,9 +219,9 @@ export class ApplicationSession {
   /** Catalog-driven minimum-valid fill for the current page's visible, unanswered questions. */
   async completePageWithDefaults() {
     await this.step(`Fill remaining visible questions on ${this.here()} with catalog defaults`, () => {
-      for (const q of this.tree.allQuestions()) {
-        const sid = q.sureifyId;
-        if (!sid || q.isHidden || this.adm[sid] != null) continue;
+      for (const question of this.tree.allQuestions()) {
+        const sid = question.sureifyId;
+        if (!sid || question.isHidden || this.adm[sid] != null) continue;
         const dflt = this.catalog.defaultValueFor(sid);
         if (dflt !== undefined) { this.catalog.assertKnown(sid); this.answerUncatalogued(sid, dflt); }
       }
@@ -269,8 +269,8 @@ export class ApplicationSession {
       const params: Record<string, unknown> = { uid: this.uid };
       for (const p of props.payload_questions_list ?? []) {
         if (!p.api_param_name) continue;
-        const q = this.tree.byQuestionUuid(p.question_id);
-        const value = q?.sureifyId ? apiParamValue(this.adm[q.sureifyId], q.displayType) : undefined;
+        const question = this.tree.byQuestionUuid(p.question_id);
+        const value = question?.sureifyId ? apiParamValue(this.adm[question.sureifyId], question.displayType) : undefined;
         if (value !== undefined) params[p.api_param_name] = value;
       }
       const result = await this.client.custom({
@@ -416,12 +416,12 @@ export class ApplicationSession {
     return this.step(`Answer ${sureifyId} and trigger its API (page_state_change)`, async () => {
       this.catalog.assertKnown(sureifyId);
       this.answerUncatalogued(sureifyId, value);
-      const q = this.tree.bySureifyId(sureifyId)!;
+      const question = this.tree.bySureifyId(sureifyId)!;
       const sent = { [sureifyId]: this.adm[sureifyId] };
       const resp = await this.client.questions({
         uid: this.uid,
         event_type: 'page_state_change',
-        question_id: q.questionUuid,
+        question_id: question.questionUuid,
         sureify_id: sureifyId,
         application_data_model: this.adm,
       });

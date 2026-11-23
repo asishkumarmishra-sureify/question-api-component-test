@@ -2,6 +2,11 @@ import type { RawBreadcrumb, RawOption, RawQuestion } from '../types';
 
 const FREE_ENTRY_TYPES = new Set(['text', 'textarea', 'number', 'currency', 'date', 'datepicker', 'label', 'slider', 'button']);
 
+/**
+ * One question from the latest API response, with readable accessors over its raw JSON
+ * (id, type, validation status). It also turns a human option label into the option
+ * object the API expects
+ */
 export class TreeQuestion {
   constructor(public raw: RawQuestion, public parent?: TreeQuestion) {}
   get sureifyId() { return this.raw.sureify_id; }
